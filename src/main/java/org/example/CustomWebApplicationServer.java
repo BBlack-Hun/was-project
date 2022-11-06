@@ -34,7 +34,13 @@ public class CustomWebApplicationServer {
                  */
 
                 try(InputStream in = clientSocket.getInputStream(); OutputStream out = clientSocket.getOutputStream()) {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
+                    BufferedReader br = new BufferedReader(new InputStreamReader(in)); // 이미 utf-8이기 때문에 변환해 줄 필요가 없다.
+                    DataOutputStream dos = new DataOutputStream(out);
+
+                    String line;
+                    while((line = br.readLine()) != "") {
+                        System.out.println(line);
+                    }
                 }
             }
         }
