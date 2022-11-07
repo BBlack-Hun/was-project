@@ -49,6 +49,11 @@ public class CustomWebApplicationServer {
                         int operand2 = Integer.parseInt(queryStrings.getValue("operand2"));
 
                         int result = Calculator.calculator(new PositiveNumber(operand1), operator, new PositiveNumber(operand2));
+                        byte[] body = String.valueOf(result).getBytes();
+
+                        HttpResponse response = new HttpResponse(dos);
+                        response.response200Header("application/json", body.length);
+                        response.responseBody(body);
                     }
                 }
             }
