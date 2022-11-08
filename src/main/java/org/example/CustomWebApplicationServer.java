@@ -32,30 +32,10 @@ public class CustomWebApplicationServer {
                 logger.info("[CustomWebApplicationServer]] client connected!");
 
                 /**
-                 * Step1 - 사용자가 요청을 메인 Thread가 처리하도록 한다.
+                 * Step2 - 사용자 요청이 들어올 때마다 Thread를 새로생성하여 사용자 요청을 처리하도록 한다.
+                 * 제한 없이 생성하게 된다면, 서버 리소스를 과하게 사용하게 되어 서버가 다운될 경우가 발생할 수 있다.
                  */
-
-                try(InputStream in = clientSocket.getInputStream(); OutputStream out = clientSocket.getOutputStream()) {
-                    BufferedReader br = new BufferedReader(new InputStreamReader(in)); // 이미 utf-8이기 때문에 변환해 줄 필요가 없다.
-                    DataOutputStream dos = new DataOutputStream(out);
-
-                    HttpRequest httpRequest = new HttpRequest(br);
-
-                    if (httpRequest.isGetRequest() && httpRequest.matchPath("/calculate")) {
-                        QueryStrings queryStrings = httpRequest.getQueryString();
-
-                        int operand1 = Integer.parseInt(queryStrings.getValue("operand1"));
-                        String operator = queryStrings.getValue("operator");
-                        int operand2 = Integer.parseInt(queryStrings.getValue("operand2"));
-
-                        int result = Calculator.calculator(new PositiveNumber(operand1), operator, new PositiveNumber(operand2));
-                        byte[] body = String.valueOf(result).getBytes();
-
-                        HttpResponse response = new HttpResponse(dos);
-                        response.response200Header("application/json", body.length);
-                        response.responseBody(body);
-                    }
-                }
+                new Thread(new ClientRequestHandler(clientSocket)).start();
             }
         }
     }
